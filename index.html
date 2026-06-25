@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Arpoja</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <style>
     body {
       background-color: rgb(21, 124, 175);
       font-family: 'Poppins', sans-serif;
     }
     button:hover {
-      background-color: #45a049;
       transform: scale(1.05);
     }
     .kortti {
@@ -27,19 +27,29 @@
 </head>
 <body>
 
+  <button onclick="toggleHistoria()" style="position: fixed; top: 10px; left: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">📜 Historia</button>
+  <div id="historiaPaneeli" style="position: fixed; top: 55px; left: 10px; display: none; background-color: white; padding: 15px; border-radius: 10px; max-width: 250px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"></div>
+
   <h1 style="text-align: center; font-size: 80px;">🎲 Arpoja</h1>
   <p style="text-align: center;">Muista pitää vaihtoehdot pilkuilla erotettuina</p>
 
   <div class="kortti" style="text-align: center;">
-    <input id="vaihtoehdot" style="width: 300px;" placeholder="Mitä haluat arpoa?">
+    <input id="vaihtoehdot" onkeydown="if (event.key === 'Enter') arvo()" oninput="localStorage.setItem('vaihtoehdot', this.value)" style="width: 300px;" placeholder="Mitä haluat arpoa?">
     <br><br>
     <button onclick="arvo()" style="font-size: 24px; padding: 12px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">Arvo!</button>
     <p id="tulos" style="font-size: 32px; font-weight: bold; color: #4CAF50;"></p>
   </div>
 
   <script>
+    var historiaLista = [];
+
     function arvo() {
       var teksti = document.getElementById("vaihtoehdot").value;
+      if (teksti.trim() === "") {
+        document.getElementById("tulos").textContent = "Kirjoita ensin vaihtoehtoja!";
+        return;
+      }
+      localStorage.setItem("vaihtoehdot", teksti);
       var lista = teksti.split(",");
       for (var i = 0; i < lista.length; i++) {
         lista[i] = lista[i].trim();
@@ -51,12 +61,62 @@
         kierroksia = kierroksia + 1;
         if (kierroksia > 15) {
           clearInterval(ajastin);
-          tulos.textContent = "valittu: " + tulos.textContent;
+          var voittaja = tulos.textContent;
+          tulos.textContent = "valittu: " + voittaja;
+          historiaLista.unshift({ voittaja: voittaja, vaihtoehdot: teksti });
+          naytaHistoria();
+          confetti();
+          soitaAani();
+          localStorage.setItem("historia", JSON.stringify(historiaLista));
         } else {
           var arvottu = lista[Math.floor(Math.random() * lista.length)];
           tulos.textContent = arvottu;
         }
       }, 200);
+    }
+
+    function soitaAani() {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = 880;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+      osc.stop(ctx.currentTime + 0.3);
+    }
+
+    function naytaHistoria() {
+      var paneeli = document.getElementById("historiaPaneeli");
+      var html = "";
+      for (var i = 0; i < historiaLista.length; i++) {
+        html += "<b>" + historiaLista[i].voittaja + "</b><br>";
+        html += "<small style='color:#888'>" + historiaLista[i].vaihtoehdot + "</small><br><br>";
+      }
+      paneeli.innerHTML = html;
+    }
+
+    function toggleHistoria() {
+      var paneeli = document.getElementById("historiaPaneeli");
+      if (paneeli.style.display === "none") {
+        paneeli.style.display = "block";
+      } else {
+        paneeli.style.display = "none";
+      }
+    }
+
+    window.onload = function () {
+      var tallennettu = localStorage.getItem("vaihtoehdot");
+      if (tallennettu) {
+        document.getElementById("vaihtoehdot").value = tallennettu;
+      }
+      var tallennettuHistoria = localStorage.getItem("historia");
+      if (tallennettuHistoria) {
+        historiaLista = JSON.parse(tallennettuHistoria);
+        naytaHistoria();
+      }
     }
   </script>
 
