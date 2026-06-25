@@ -45,7 +45,7 @@
     var pyorii = false;
 
     function arvo() {
-        if (pyorii) return;
+      if (pyorii) return;
       var teksti = document.getElementById("vaihtoehdot").value;
       if (teksti.trim() === "") {
         document.getElementById("tulos").textContent = "Kirjoita ensin vaihtoehtoja!";
@@ -58,7 +58,8 @@
       }
       var tulos = document.getElementById("tulos");
       var kierroksia = 0;
-pyorii = true;
+      pyorii = true;
+
       var ajastin = setInterval(function () {
         kierroksia = kierroksia + 1;
         if (kierroksia > 15) {
@@ -93,7 +94,7 @@ pyorii = true;
 
     function naytaHistoria() {
       var paneeli = document.getElementById("historiaPaneeli");
-      var html = "";
+      var html = "<button onclick='tyhjennaHistoria()'>🗑️ Tyhjennä</button><br><br>";
       for (var i = 0; i < historiaLista.length; i++) {
         html += "<b>" + historiaLista[i].voittaja + "</b><br>";
         html += "<small style='color:#888'>" + historiaLista[i].vaihtoehdot + "</small><br><br>";
@@ -108,6 +109,12 @@ pyorii = true;
       } else {
         paneeli.style.display = "none";
       }
+    }
+
+    function tyhjennaHistoria() {
+      historiaLista = [];
+      localStorage.removeItem("historia");
+      naytaHistoria();
     }
 
     window.onload = function () {
