@@ -42,8 +42,10 @@
 
   <script>
     var historiaLista = [];
+    var pyorii = false;
 
     function arvo() {
+        if (pyorii) return;
       var teksti = document.getElementById("vaihtoehdot").value;
       if (teksti.trim() === "") {
         document.getElementById("tulos").textContent = "Kirjoita ensin vaihtoehtoja!";
@@ -56,7 +58,7 @@
       }
       var tulos = document.getElementById("tulos");
       var kierroksia = 0;
-
+pyorii = true;
       var ajastin = setInterval(function () {
         kierroksia = kierroksia + 1;
         if (kierroksia > 15) {
@@ -67,6 +69,7 @@
           naytaHistoria();
           confetti();
           soitaAani();
+          pyorii = false;
           localStorage.setItem("historia", JSON.stringify(historiaLista));
         } else {
           var arvottu = lista[Math.floor(Math.random() * lista.length)];
