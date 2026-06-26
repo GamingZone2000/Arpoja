@@ -19,6 +19,9 @@
       width: 0; height: 0; border-left: 15px solid transparent;
       border-right: 15px solid transparent; border-top: 28px solid #333; z-index: 2;
     }
+ body.tumma { background-color: #1a1a1a;}
+ body.tumma .kortti { background-color: #16213e; color: white;}
+ body.tumma h1, body.tumma p { color: white;}
   </style>
   <script data-goatcounter="https://samupahajoki.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -29,6 +32,7 @@
 
   <button onclick="toggleKieli()" id="kieliNappi" style="position: fixed; top: 10px; right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">EN</button>
   <button onclick="toggleAani()" id="aaniNappi" style="position: fixed; top: 55px; right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🔊 Ääni: päällä</button>
+  <button onclick="toggleTeema()" id="teemaNappi" style="position: fixed; top: 100px;right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🌙 Tumma tila</button>
 
   <h1 id="otsikko" style="text-align: center; font-size: 80px;">🎲 Arpoja</h1>
   <p id="ohjeTeksti" style="text-align: center;">Muista pitää vaihtoehdot pilkuilla erotettuina</p>
@@ -69,6 +73,7 @@
         tallenna: "💾 Tallenna lista",
         historia: "📜 Historia",
         tyhjenna: "🗑️ Tyhjennä",
+        tummaTila: "🌙 Tumma tila",
         aaniPaalla: "🔊 Ääni: päällä",
         aaniPois: "🔇 Ääni: pois",
         nimiKysymys: "Anna listalle nimi:",
@@ -83,6 +88,7 @@
         tallenna: "💾 Save list",
         historia: "📜 History",
         tyhjenna: "🗑️ Clear",
+        tummaTila: "🌙 Dark mode",
         aaniPaalla: "🔊 Sound: on",
         aaniPois: "🔇 Sound: off",
         nimiKysymys: "Enter a name for the list:",
@@ -97,6 +103,7 @@
         tallenna: "💾 Spara lista",
         historia: "📜 Historik",
         tyhjenna: "🗑️ Rensa",
+        tummaTila: "🌙 Mörkt läge",
         aaniPaalla: "🔊 Ljud: på",
         aaniPois: "🔇 Ljud: av",
         nimiKysymys: "Ge listan ett namn:",
@@ -111,6 +118,7 @@
         tallenna: "💾 Enregistrer la liste",
         historia: "📜 Historique",
         tyhjenna: "🗑️ Effacer",
+        tummaTila: "🌙 Mode sombre",
         aaniPaalla: "🔊 Son : activé",
         aaniPois: "🔇 Son : désactivé",
         nimiKysymys: "Donnez un nom à la liste :",
@@ -125,6 +133,7 @@
         tallenna: "💾 Guardar lista",
         historia: "📜 Historial",
         tyhjenna: "🗑️ Borrar",
+        tummaTila: "🌙 Modo oscuro",
         aaniPaalla: "🔊 Sonido: activado",
         aaniPois: "🔇 Sonido: desactivado",
         nimiKysymys: "Dale un nombre a la lista:",
@@ -139,6 +148,7 @@
         tallenna: "💾 Liste speichern",
         historia: "📜 Verlauf",
         tyhjenna: "🗑️ Löschen",
+        tummaTila: "🌙 Dunkelmodus",
         aaniPaalla: "🔊 Ton: an",
         aaniPois: "🔇 Ton: aus",
         nimiKysymys: "Gib der Liste einen Namen:",
@@ -266,6 +276,10 @@
         document.getElementById("aaniNappi").textContent = kaannokset[kieli].aaniPois;
       }
     }
+    function toggleTeema() {
+        document.body.classList.toggle("tumma");
+        localStorage.setItem("teema", document.body.classList.contains("tumma") ? "tumma" : "vaalea");
+    }
 
     function tallennaLista() {
       var nimi = prompt(kaannokset[kieli].nimiKysymys);
@@ -311,6 +325,7 @@
       document.getElementById("arvoNappi").textContent = k.arvo;
       document.getElementById("tallennaNappi").textContent = k.tallenna;
       document.getElementById("historiaNappi").textContent = k.historia;
+      document.getElementById("teemaNappi").textContent = k.tummaTila;
       document.getElementById("aaniNappi").textContent = aaniPaalla ? k.aaniPaalla : k.aaniPois;
       document.getElementById("kieliNappi").textContent = kieli.toUpperCase();
       if (viimeinenVoittaja) {
@@ -322,6 +337,9 @@
     }
 
     window.onload = function () {
+      if (localStorage.getItem("teema") === "tumma") {
+        document.body.classList.add("tumma");
+      }
       var tallennettu = localStorage.getItem("vaihtoehdot");
       if (tallennettu) {
         document.getElementById("vaihtoehdot").value = tallennettu;
