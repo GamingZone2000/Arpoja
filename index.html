@@ -24,23 +24,28 @@
 </head>
 <body>
 
-  <button onclick="toggleHistoria()" style="position: fixed; top: 10px; left: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">📜 Historia</button>
+  <button onclick="toggleHistoria()" id="historiaNappi" style="position: fixed; top: 10px; left: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">📜 Historia</button>
   <div id="historiaPaneeli" style="position: fixed; top: 55px; left: 10px; display: none; background-color: white; padding: 15px; border-radius: 10px; max-width: 250px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"></div>
-  <button onclick="toggleAani()" id="aaniNappi" style="position: fixed; top: 10px; right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🔊 Ääni: päällä</button>
 
-  <h1 style="text-align: center; font-size: 80px;">🎲 Arpoja</h1>
-  <p style="text-align: center;">Muista pitää vaihtoehdot pilkuilla erotettuina</p>
+  <button onclick="toggleKieli()" id="kieliNappi" style="position: fixed; top: 10px; right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">EN</button>
+  <button onclick="toggleAani()" id="aaniNappi" style="position: fixed; top: 55px; right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🔊 Ääni: päällä</button>
+
+  <h1 id="otsikko" style="text-align: center; font-size: 80px;">🎲 Arpoja</h1>
+  <p id="ohjeTeksti" style="text-align: center;">Muista pitää vaihtoehdot pilkuilla erotettuina</p>
+
+  <div id="listatAlue" style="text-align: center;"></div>
 
   <div class="kortti" style="text-align: center;">
-    <input id="vaihtoehdot" oninput="localStorage.setItem('vaihtoehdot', this.value); piirraPyora()" style="width: 300px;" placeholder="Mitä haluat arpoa?">
+    <input id="vaihtoehdot" onkeydown="if (event.key === 'Enter') arvo()" oninput="localStorage.setItem('vaihtoehdot', this.value); piirraPyora()" style="width: 300px;" placeholder="Mitä haluat arpoa?">
     <br><br>
     <div style="position: relative; width: 300px; height: 300px; margin: 0 auto;">
       <div id="osoitin"></div>
       <canvas id="pyora" width="300" height="300"></canvas>
     </div>
     <br>
-    <button onclick="arvo()" style="font-size: 24px; padding: 12px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">Arvo!</button>
+    <button onclick="arvo()" id="arvoNappi" style="font-size: 24px; padding: 12px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">Arvo!</button>
     <p id="tulos" style="font-size: 32px; font-weight: bold; color: #4CAF50;"></p>
+    <button onclick="tallennaLista()" id="tallennaNappi" style="padding: 8px 14px; border: none; border-radius: 8px; background-color: #eee; cursor: pointer; font-family: 'Poppins', sans-serif;">💾 Tallenna lista</button>
   </div>
 
   <script>
@@ -48,6 +53,39 @@
     var pyorii = false;
     var nykyinenKulma = 0;
     var aaniPaalla = true;
+    var listat = {};
+    var kieli = "en";
+
+    var kaannokset = {
+      fi: {
+        otsikko: "🎲 Arpoja",
+        ohje: "Muista pitää vaihtoehdot pilkuilla erotettuina",
+        placeholder: "Mitä haluat arpoa?",
+        arvo: "Arvo!",
+        valittu: "valittu: ",
+        tallenna: "💾 Tallenna lista",
+        historia: "📜 Historia",
+        tyhjenna: "🗑️ Tyhjennä",
+        aaniPaalla: "🔊 Ääni: päällä",
+        aaniPois: "🔇 Ääni: pois",
+        nimiKysymys: "Anna listalle nimi:",
+        kirjoitaEnsin: "Kirjoita ensin vaihtoehtoja!"
+      },
+      en: {
+        otsikko: "🎲Randomizer",
+        ohje: "Remember to separate options with commas",
+        placeholder: "What do you want to pick?",
+        arvo: "Spin!",
+        valittu: "selected: ",
+        tallenna: "💾 Save list",
+        historia: "📜 History",
+        tyhjenna: "🗑️ Clear",
+        aaniPaalla: "🔊 Sound: on",
+        aaniPois: "🔇 Sound: off",
+        nimiKysymys: "Enter a name for the list:",
+        kirjoitaEnsin: "Type some options first!"
+      }
+    };
 
     function piirraPyora() {
       var teksti = document.getElementById("vaihtoehdot").value;
@@ -84,7 +122,7 @@
       if (pyorii) return;
       var lista = piirraPyora();
       if (lista.length === 0) {
-        document.getElementById("tulos").textContent = "Kirjoita ensin vaihtoehtoja!";
+        document.getElementById("tulos").textContent = kaannokset[kieli].kirjoitaEnsin;
         return;
       }
       var teksti = document.getElementById("vaihtoehdot").value;
@@ -102,7 +140,7 @@
 
       setTimeout(function () {
         var voittaja = lista[voittajaIndex];
-        document.getElementById("tulos").textContent = "valittu: " + voittaja;
+        document.getElementById("tulos").textContent = kaannokset[kieli].valittu + voittaja;
         historiaLista.unshift({ voittaja: voittaja, vaihtoehdot: teksti });
         naytaHistoria();
         confetti();
@@ -128,7 +166,7 @@
 
     function naytaHistoria() {
       var paneeli = document.getElementById("historiaPaneeli");
-      var html = "<button onclick='tyhjennaHistoria()'>🗑️ Tyhjennä</button><br><br>";
+      var html = "<button onclick='tyhjennaHistoria()'>" + kaannokset[kieli].tyhjenna + "</button><br><br>";
       for (var i = 0; i < historiaLista.length; i++) {
         html += "<b>" + historiaLista[i].voittaja + "</b><br>";
         html += "<small style='color:#888'>" + historiaLista[i].vaihtoehdot + "</small><br><br>";
@@ -154,10 +192,54 @@
     function toggleAani() {
       aaniPaalla = !aaniPaalla;
       if (aaniPaalla) {
-        document.getElementById("aaniNappi").textContent = "🔊 Ääni: päällä";
+        document.getElementById("aaniNappi").textContent = kaannokset[kieli].aaniPaalla;
       } else {
-        document.getElementById("aaniNappi").textContent = "🔇 Ääni: pois";
+        document.getElementById("aaniNappi").textContent = kaannokset[kieli].aaniPois;
       }
+    }
+
+    function tallennaLista() {
+      var nimi = prompt(kaannokset[kieli].nimiKysymys);
+      if (nimi) {
+        listat[nimi] = document.getElementById("vaihtoehdot").value;
+        localStorage.setItem("listat", JSON.stringify(listat));
+        naytaListat();
+      }
+    }
+
+    function naytaListat() {
+      var alue = document.getElementById("listatAlue");
+      var html = "";
+      for (var nimi in listat) {
+        html += "<button onclick=\"lataaLista('" + nimi + "')\" style='margin:5px; padding:8px 14px; border:none; border-radius:8px; background:white; cursor:pointer; font-family:Poppins;'>" + nimi + "</button>";
+      }
+      alue.innerHTML = html;
+    }
+
+    function lataaLista(nimi) {
+      document.getElementById("vaihtoehdot").value = listat[nimi];
+      localStorage.setItem("vaihtoehdot", listat[nimi]);
+      piirraPyora();
+    }
+
+    function toggleKieli() {
+      kieli = (kieli === "fi") ? "en" : "fi";
+      localStorage.setItem("kieli", kieli);
+      paivitaKieli();
+    }
+
+    function paivitaKieli() {
+        
+      var k = kaannokset[kieli];
+      document.getElementById("ohjeTeksti").textContent = k.ohje;
+      document.getElementById("otsikko").textContent = k.otsikko
+      document.getElementById("vaihtoehdot").placeholder = k.placeholder;
+      document.getElementById("arvoNappi").textContent = k.arvo;
+      document.getElementById("tallennaNappi").textContent = k.tallenna;
+      document.getElementById("historiaNappi").textContent = k.historia;
+      document.getElementById("aaniNappi").textContent = aaniPaalla ? k.aaniPaalla : k.aaniPois;
+      document.getElementById("kieliNappi").textContent = (kieli === "fi") ? "EN" : "FI";
+      naytaHistoria();
     }
 
     window.onload = function () {
@@ -170,6 +252,16 @@
         historiaLista = JSON.parse(tallennettuHistoria);
         naytaHistoria();
       }
+      var tallennetutListat = localStorage.getItem("listat");
+      if (tallennetutListat) {
+        listat = JSON.parse(tallennetutListat);
+      }
+      naytaListat();
+      var tallennettuKieli = localStorage.getItem("kieli");
+      if (tallennettuKieli) {
+        kieli = tallennettuKieli;
+      }
+      paivitaKieli();
       piirraPyora();
     }
   </script>
