@@ -7,20 +7,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <style>
-    body {
-      background-color: rgb(21, 124, 175);
-      font-family: 'Poppins', sans-serif;
-    }
-    button:hover {
-      transform: scale(1.05);
-    }
+    body { background-color: rgb(21, 124, 175); font-family: 'Poppins', sans-serif; }
+    button:hover { transform: scale(1.05); }
     .kortti {
-      background-color: white;
-      max-width: 400px;
-      margin: 40px auto;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      background-color: white; max-width: 400px; margin: 40px auto;
+      padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #pyora { transition: transform 4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    #osoitin {
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 15px solid transparent;
+      border-right: 15px solid transparent; border-top: 28px solid #333; z-index: 2;
     }
   </style>
   <script data-goatcounter="https://samupahajoki.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -29,12 +26,156 @@
 
   <button onclick="toggleHistoria()" style="position: fixed; top: 10px; left: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">📜 Historia</button>
   <div id="historiaPaneeli" style="position: fixed; top: 55px; left: 10px; display: none; background-color: white; padding: 15px; border-radius: 10px; max-width: 250px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"></div>
+  <button onclick="toggleAani()" id="aaniNappi" style="position: fixed; top: 10px; right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🔊 Ääni: päällä</button>
 
   <h1 style="text-align: center; font-size: 80px;">🎲 Arpoja</h1>
   <p style="text-align: center;">Muista pitää vaihtoehdot pilkuilla erotettuina</p>
 
   <div class="kortti" style="text-align: center;">
-    <input id="vaihtoehdot" onkeydown="if (event.key === 'Enter') arvo()" oninput="localStorage.setItem('vaihtoehdot', this.value)" style="width: 300px;" placeholder="Mitä haluat arpoa?">
+    <input id="vaihtoehdot" oninput="localStorage.setItem('vaihtoehdot', this.value); piirraPyora()" style="width: 300px;" placeholder="Mitä haluat arpoa?">
+    <br><br>
+    <div style="position: relative; width: 300px; height: 300px; margin: 0 auto;">
+      <div id="osoitin"></div>
+      <canvas id="pyora" width="300" height="300"></canvas>
+    </div>
+    <br>
+    <button onclick="arvo()" style="font-size: 24px; padding: 12px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">Arvo!</button>
+    <p id="tulos" style="font-size: 32px; font-weight: bold; color: #4CAF50;"></p>
+  </div>
+
+  <script>
+    var historiaLista = [];
+    var pyorii = false;
+    var nykyinenKulma = 0;
+    var aaniPaalla = true;
+
+    function piirraPyora() {
+      var teksti = document.getElementById("vaihtoehdot").value;
+      var raaka = teksti.split(",");
+      var lista = [];
+      for (var i = 0; i < raaka.length; i++) {
+        if (raaka[i].trim() !== "") lista.push(raaka[i].trim());
+      }
+      var ctx = document.getElementById("pyora").getContext("2d");
+      ctx.clearRect(0, 0, 300, 300);
+      if (lista.length === 0) return [];
+
+      var varit = ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22", "#1abc9c", "#34495e"];
+      var pala = (2 * Math.PI) / lista.length;
+      for (var i = 0; i < lista.length; i++) {
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.arc(150, 150, 150, i * pala, (i + 1) * pala);
+        ctx.fillStyle = varit[i % varit.length];
+        ctx.fill();
+        ctx.save();
+        ctx.translate(150, 150);
+        ctx.rotate(i * pala + pala / 2);
+        ctx.fillStyle = "white";
+        ctx.font = "bold 15px sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(lista[i], 135, 5);
+        ctx.restore();
+      }
+      return lista;
+    }
+
+    function arvo() {
+      if (pyorii) return;
+      var lista = piirraPyora();
+      if (lista.length === 0) {
+        document.getElementById("tulos").textContent = "Kirjoita ensin vaihtoehtoja!";
+        return;
+      }
+      var teksti = document.getElementById("vaihtoehdot").value;
+      localStorage.setItem("vaihtoehdot", teksti);
+      pyorii = true;
+
+      var voittajaIndex = Math.floor(Math.random() * lista.length);
+      var palaAste = 360 / lista.length;
+      var keskiKulma = voittajaIndex * palaAste + palaAste / 2;
+      var maali = ((270 - keskiKulma) % 360 + 360) % 360;
+      var nyt = ((nykyinenKulma % 360) + 360) % 360;
+      var lisays = ((maali - nyt) % 360 + 360) % 360 + 360 * 5;
+      nykyinenKulma += lisays;
+      document.getElementById("pyora").style.transform = "rotate(" + nykyinenKulma + "deg)";
+
+      setTimeout(function () {
+        var voittaja = lista[voittajaIndex];
+        document.getElementById("tulos").textContent = "valittu: " + voittaja;
+        historiaLista.unshift({ voittaja: voittaja, vaihtoehdot: teksti });
+        naytaHistoria();
+        confetti();
+        soitaAani();
+        localStorage.setItem("historia", JSON.stringify(historiaLista));
+        pyorii = false;
+      }, 4100);
+    }
+
+    function soitaAani() {
+      if (!aaniPaalla) return;
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = 880;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+      osc.stop(ctx.currentTime + 0.3);
+    }
+
+    function naytaHistoria() {
+      var paneeli = document.getElementById("historiaPaneeli");
+      var html = "<button onclick='tyhjennaHistoria()'>🗑️ Tyhjennä</button><br><br>";
+      for (var i = 0; i < historiaLista.length; i++) {
+        html += "<b>" + historiaLista[i].voittaja + "</b><br>";
+        html += "<small style='color:#888'>" + historiaLista[i].vaihtoehdot + "</small><br><br>";
+      }
+      paneeli.innerHTML = html;
+    }
+
+    function toggleHistoria() {
+      var paneeli = document.getElementById("historiaPaneeli");
+      if (paneeli.style.display === "none") {
+        paneeli.style.display = "block";
+      } else {
+        paneeli.style.display = "none";
+      }
+    }
+
+    function tyhjennaHistoria() {
+      historiaLista = [];
+      localStorage.removeItem("historia");
+      naytaHistoria();
+    }
+
+    function toggleAani() {
+      aaniPaalla = !aaniPaalla;
+      if (aaniPaalla) {
+        document.getElementById("aaniNappi").textContent = "🔊 Ääni: päällä";
+      } else {
+        document.getElementById("aaniNappi").textContent = "🔇 Ääni: pois";
+      }
+    }
+
+    window.onload = function () {
+      var tallennettu = localStorage.getItem("vaihtoehdot");
+      if (tallennettu) {
+        document.getElementById("vaihtoehdot").value = tallennettu;
+      }
+      var tallennettuHistoria = localStorage.getItem("historia");
+      if (tallennettuHistoria) {
+        historiaLista = JSON.parse(tallennettuHistoria);
+        naytaHistoria();
+      }
+      piirraPyora();
+    }
+  </script>
+
+</body>
+</html>    <input id="vaihtoehdot" onkeydown="if (event.key === 'Enter') arvo()" oninput="localStorage.setItem('vaihtoehdot', this.value)" style="width: 300px;" placeholder="Mitä haluat arpoa?">
     <br><br>
     <button onclick="arvo()" style="font-size: 24px; padding: 12px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">Arvo!</button>
     <p id="tulos" style="font-size: 32px; font-weight: bold; color: #4CAF50;"></p>
