@@ -57,6 +57,7 @@
     var kieli = "en";
     var viimeinenVoittaja = null;
     var audioCtx = null;
+    var kayttajaKieli = "en";
 
     var kaannokset = {
       fi: {
@@ -86,6 +87,62 @@
         aaniPois: "🔇 Sound: off",
         nimiKysymys: "Enter a name for the list:",
         kirjoitaEnsin: "Type some options first!"
+      },
+      sv: {
+        otsikko: "🎲 Slumpa",
+        ohje: "Kom ihåg att skilja alternativen med kommatecken",
+        placeholder: "Vad vill du slumpa?",
+        arvo: "Snurra!",
+        valittu: "vald: ",
+        tallenna: "💾 Spara lista",
+        historia: "📜 Historik",
+        tyhjenna: "🗑️ Rensa",
+        aaniPaalla: "🔊 Ljud: på",
+        aaniPois: "🔇 Ljud: av",
+        nimiKysymys: "Ge listan ett namn:",
+        kirjoitaEnsin: "Skriv alternativ först!"
+      },
+      fr: {
+        otsikko: "🎲 Randomiseur",
+        ohje: "N'oubliez pas de séparer les options par des virgules",
+        placeholder: "Que voulez-vous tirer ?",
+        arvo: "Tourner !",
+        valittu: "choisi : ",
+        tallenna: "💾 Enregistrer la liste",
+        historia: "📜 Historique",
+        tyhjenna: "🗑️ Effacer",
+        aaniPaalla: "🔊 Son : activé",
+        aaniPois: "🔇 Son : désactivé",
+        nimiKysymys: "Donnez un nom à la liste :",
+        kirjoitaEnsin: "Entrez d'abord des options !"
+      },
+      es: {
+        otsikko: "🎲 Sorteador",
+        ohje: "Recuerda separar las opciones con comas",
+        placeholder: "¿Qué quieres sortear?",
+        arvo: "¡Girar!",
+        valittu: "elegido: ",
+        tallenna: "💾 Guardar lista",
+        historia: "📜 Historial",
+        tyhjenna: "🗑️ Borrar",
+        aaniPaalla: "🔊 Sonido: activado",
+        aaniPois: "🔇 Sonido: desactivado",
+        nimiKysymys: "Dale un nombre a la lista:",
+        kirjoitaEnsin: "¡Escribe opciones primero!"
+      },
+      de: {
+        otsikko: "🎲 Zufallsrad",
+        ohje: "Denk daran, die Optionen mit Kommas zu trennen",
+        placeholder: "Was möchtest du auslosen?",
+        arvo: "Drehen!",
+        valittu: "ausgewählt: ",
+        tallenna: "💾 Liste speichern",
+        historia: "📜 Verlauf",
+        tyhjenna: "🗑️ Löschen",
+        aaniPaalla: "🔊 Ton: an",
+        aaniPois: "🔇 Ton: aus",
+        nimiKysymys: "Gib der Liste einen Namen:",
+        kirjoitaEnsin: "Gib zuerst Optionen ein!"
       }
     };
 
@@ -236,9 +293,9 @@
     }
 
     function toggleKieli() {
-      kieli = (kieli === "fi") ? "en" : "fi";
+      kieli = (kieli === "en") ? kayttajaKieli : "en";
       localStorage.setItem("kieli", kieli);
-      paivitaKieli();
+      paivitaKieli(); 
     }
   function poistaLista(nimi) {
       delete listat[nimi];
@@ -255,7 +312,7 @@
       document.getElementById("tallennaNappi").textContent = k.tallenna;
       document.getElementById("historiaNappi").textContent = k.historia;
       document.getElementById("aaniNappi").textContent = aaniPaalla ? k.aaniPaalla : k.aaniPois;
-      document.getElementById("kieliNappi").textContent = (kieli === "fi") ? "EN" : "FI";
+      document.getElementById("kieliNappi").textContent = kieli.toUpperCase();
       if (viimeinenVoittaja) {
      document.getElementById("tulos").textContent = kaannokset[kieli].valittu + viimeinenVoittaja;
 
@@ -279,9 +336,17 @@
         listat = JSON.parse(tallennetutListat);
       }
       naytaListat();
+            var selainKoodi = navigator.language ? navigator.language.substring(0, 2) : "en";
+      if (kaannokset[selainKoodi] && selainKoodi !== "en") {
+        kayttajaKieli = selainKoodi;
+      } else {
+        kayttajaKieli = "en";
+      }
       var tallennettuKieli = localStorage.getItem("kieli");
       if (tallennettuKieli) {
         kieli = tallennettuKieli;
+      } else {
+        kieli = kayttajaKieli;
       }
       paivitaKieli();
       piirraPyora();
