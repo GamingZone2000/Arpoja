@@ -35,11 +35,11 @@
   <div id="historiaPaneeli" style="position: fixed; top: 55px; left: 10px; display: none; background-color: white; padding: 15px; border-radius: 10px; max-width: 250px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"></div>
 
   <button onclick="toggleAsetukset()" id="asetuksetNappi" style="position: fixed; top: 10px; right: 10px; padding: 10px 14px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-size: 18px;">⚙️</button>
-  <div id="asetuksetPaneeli" style="position: fixed; top: 55px; right: 10px; display: none; flex-direction: column; gap: 8px; background-color: white; padding: 12px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+  <button onclick="jaa()" id="jaaNappi" title="Jaa / Share" style="position: fixed; top: 55px; right: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🔗 Jaa</button>
+  <div id="asetuksetPaneeli" style="position: fixed; top: 110px; right: 10px; display: none; flex-direction: column; gap: 8px; background-color: white; padding: 12px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
     <button onclick="toggleKieli()" id="kieliNappi" style="padding: 10px 16px; border: none; border-radius: 8px; background-color: #eee; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">EN</button>
     <button onclick="toggleAani()" id="aaniNappi" style="padding: 10px 16px; border: none; border-radius: 8px; background-color: #eee; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🔊 Ääni: päällä</button>
     <button onclick="toggleTeema()" id="teemaNappi" style="padding: 10px 16px; border: none; border-radius: 8px; background-color: #eee; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold;">🌙 Tumma tila</button>
-    <button onclick="jaa()" id="jaaNappi" title="Jaa / Share" style="padding: 10px 16px; border: none; border-radius: 8px; background-color: #eee; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: bold; ">🔗Jaa</button>
   </div>
 
   <h1 id="otsikko" style="text-align: center; font-size: 80px;">🎲 Arpoja</h1>
@@ -83,6 +83,7 @@
         tyhjenna: "🗑️ Tyhjennä",
         tummaTila: "🌙 Tumma tila",
         linkkiKopioitu: "Linkki kopioitu!",
+        jaa: "🔗 Jaa",
         aaniPaalla: "🔊 Ääni: päällä",
         aaniPois: "🔇 Ääni: pois",
         nimiKysymys: "Anna listalle nimi:",
@@ -99,6 +100,7 @@
         tyhjenna: "🗑️ Clear",
         tummaTila: "🌙 Dark mode",
         linkkiKopioitu: "Link copied!",
+        jaa: "🔗 Share",
         aaniPaalla: "🔊 Sound: on",
         aaniPois: "🔇 Sound: off",
         nimiKysymys: "Enter a name for the list:",
@@ -115,6 +117,7 @@
         tyhjenna: "🗑️ Rensa",
         tummaTila: "🌙 Mörkt läge",
         linkkiKopioitu: "Länk kopierad!",
+        jaa: "🔗 Dela",
         aaniPaalla: "🔊 Ljud: på",
         aaniPois: "🔇 Ljud: av",
         nimiKysymys: "Ge listan ett namn:",
@@ -131,6 +134,7 @@
         tyhjenna: "🗑️ Effacer",
         tummaTila: "🌙 Mode sombre",
         linkkiKopioitu: "Lien copié !",
+        jaa: "🔗 Partager",
         aaniPaalla: "🔊 Son : activé",
         aaniPois: "🔇 Son : désactivé",
         nimiKysymys: "Donnez un nom à la liste :",
@@ -147,6 +151,7 @@
         tyhjenna: "🗑️ Borrar",
         tummaTila: "🌙 Modo oscuro",
         linkkiKopioitu: "¡Enlace copiado!",
+        jaa: "🔗 Compartir",
         aaniPaalla: "🔊 Sonido: activado",
         aaniPois: "🔇 Sonido: desactivado",
         nimiKysymys: "Dale un nombre a la lista:",
@@ -163,6 +168,7 @@
         tyhjenna: "🗑️ Löschen",
         tummaTila: "🌙 Dunkelmodus",
         linkkiKopioitu: "Link kopiert!",
+        jaa: "🔗 Teilen",
         aaniPaalla: "🔊 Ton: an",
         aaniPois: "🔇 Ton: aus",
         nimiKysymys: "Gib der Liste einen Namen:",
@@ -356,6 +362,7 @@ if (navigator.share) {
       document.getElementById("tallennaNappi").textContent = k.tallenna;
       document.getElementById("historiaNappi").textContent = k.historia;
       document.getElementById("teemaNappi").textContent = k.tummaTila;
+      document.getElementById("jaaNappi").textContent = k.jaa;
       document.getElementById("aaniNappi").textContent = aaniPaalla ? k.aaniPaalla : k.aaniPois;
       document.getElementById("kieliNappi").textContent = kieli.toUpperCase();
       if (viimeinenVoittaja) {
